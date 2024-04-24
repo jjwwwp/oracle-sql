@@ -6,7 +6,46 @@ import java.util.*;
 import vo.Emp;
 
 public class EmpDAO {
+	// q005OrderBy.jsp
+	public static ArrayList<Emp> selectEmpListSort(String col, String sort) throws Exception {
+		// 매개값 디버깅
+		System.out.println(col+"<--EmpDAO.selectEmpListSort param col");
+		System.out.println(sort+"<--EmpDAO.selectEmpListSort param sort");
+		
+		ArrayList<Emp> list = new ArrayList<>();
+		Connection conn = DBHelper.getConnection();
+		
+		/*
+		 * 동적쿼리(쿼리문자열이 매개값에 따라 분기되어 차이가 나는 경우)
+		 * 없다
+		 * empno ASC
+		 * empno DESC
+		 * ename ASC
+		 * ename DESC
+		 */
+		String sql = "SELECT empno, ename"
+				+ " FROM emp";
+		
+		if(col != null && sort != null) {
+			sql = sql + " ORDER BY "+ col+" "+sort; //띄어쓰기 주의할것
+		}
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		//디버깅
+		System.out.println(stmt);
+		
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Emp e = new Emp();
+			e.setEmpNo(rs.getInt("EmpNo"));
+			e.setEname(rs.getString("Ename"));
+			list.add(e);
+		}
+		conn.close();
+		return list;
+	}
+	
 	// q004WhereIn.jsp
+	//emp목록을 불러온 다음 Integer로 변환후 등급목록을 출력
 	public static ArrayList<Emp> selectEmpListByGrade(ArrayList<Integer> ckList) throws Exception {
 		ArrayList<Emp> list = new ArrayList<>();
 		Connection conn = DBHelper.getConnection();
@@ -14,21 +53,25 @@ public class EmpDAO {
 				+ " FROM emp"
 				+ " WHERE grade IN ";
 		PreparedStatement stmt = null;
+		//등급을 1개 고를때
 		if(ckList.size() == 1) {
 			sql = sql + "(?)";
 			stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, ckList.get(0));
+		//등급을 2개 고를때
 		} else if(ckList.size() == 2) {
 			sql = sql + "(?, ?)";
 			stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, ckList.get(0));
 			stmt.setInt(2, ckList.get(1));
+		//등급을 3개 고를때	
 		}	else if(ckList.size() == 3) {
 			sql = sql + "(?, ?, ?)";
 			stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, ckList.get(0));
 			stmt.setInt(2, ckList.get(1));
 			stmt.setInt(3, ckList.get(2));
+		//등급을 4개 고를때	
 		}	else if(ckList.size() == 4) {
 			sql = sql + "(?, ?, ?, ?)";
 			stmt = conn.prepareStatement(sql);
@@ -36,6 +79,7 @@ public class EmpDAO {
 			stmt.setInt(2, ckList.get(1));
 			stmt.setInt(3, ckList.get(2));
 			stmt.setInt(4, ckList.get(3));
+		//등급을 5개 고를때	
 		}	else if(ckList.size() == 5) {
 			sql = sql + "(?, ?, ?, ?, ?)";
 			stmt = conn.prepareStatement(sql);
